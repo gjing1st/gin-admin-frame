@@ -1,0 +1,23 @@
+log:
+  # std|file
+  output: ${config_log_output}
+  # trace|debug|info|warn
+  level: ${config_log_level}
+  # 是否打印调用者信息
+  caller: ${config_log_caller}
+  # 日志目录
+  dir: ${config_log_dir}
+#web基础配置
+web:
+  port: 9680
+  #跨域开关
+  cors: true
+#mysql配置
+mysql:
+  host: ${config_mysql_host}
+  username: ${config_mysql_username}
+  password: ${config_mysql_password}
+  dbname: ${config_mysql_dbname}
+  port: ${config_mysql_port}
+  minconns: 160
+  maxconns: 200

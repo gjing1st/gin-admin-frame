@@ -1,0 +1,32 @@
+log:
+  # std|file
+  output: std
+  # trace|debug|info|warn
+  level: info
+  # 是否打印调用者信息
+  caller: true
+  # 日志目录
+  dir: ./log
+#web基础配置
+web:
+  port: 9680
+  #跨域开关
+  cors: true
+#mysql配置
+mysql:
+  host: localhost
+  username: root
+  password: 123456
+  dbname: gaf
+  port: 30348
+  minconns: 150
+  maxconns: 200
+versioninfo:
+  manufacturer: xxxx
+  serial: 35D485H3B7Z89N
+  devicemodel: serial1212345678
+adapter:
+  adminpath: /etc/sysconfig/network-scripts/ifcfg-ens33
+  cipherpath: /etc/sysconfig/network-scripts/ifcfg-ens33
+assistaddr: http://172.17.0.1:18998
+

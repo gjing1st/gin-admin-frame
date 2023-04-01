@@ -37,7 +37,7 @@ var (
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 11:08
 // @success:
-func (cs *ConfigService) GetValueStr(k string) (v string, errCode int) {
+func (cs *ConfigService) GetValueStr(k string) (v string, errCode errcode.Err) {
 	v, errCode = gCache.GetValueStr(k)
 	if v == "" {
 		vi, errCode1 := configMysql.GetValue(k)
@@ -58,7 +58,7 @@ func (cs *ConfigService) GetValueStr(k string) (v string, errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 10:01
 // @success:
-func (cs *ConfigService) GetInitStep() (res dict.InitStepValue, errCode int) {
+func (cs *ConfigService) GetInitStep() (res response.InitStepValue, errCode errcode.Err) {
 	v, errCode1 := cs.GetValueStr(dict.ConfigInitStep)
 	if errCode1 != 0 {
 		errCode = errCode1
@@ -84,7 +84,7 @@ func (cs *ConfigService) Get() {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 15:27
 // @success:
-func (cs *ConfigService) SetCacheValue(k, v interface{}) (errCode int) {
+func (cs *ConfigService) SetCacheValue(k, v interface{}) (errCode errcode.Err) {
 	errCode = gCache.RemoveSet(k, v)
 	return
 }
@@ -96,7 +96,7 @@ func (cs *ConfigService) SetCacheValue(k, v interface{}) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/15 14:01
 // @success:
-func (cs *ConfigService) SetValue(k string, v interface{}) (errCode int) {
+func (cs *ConfigService) SetValue(k string, v interface{}) (errCode errcode.Err) {
 	errCode = configMysql.SetValue(k, v)
 	if errCode == 0 {
 		cs.SetCacheValue(k, v)
@@ -111,7 +111,7 @@ func (cs *ConfigService) SetValue(k string, v interface{}) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 11:36
 // @success:
-func (cs *ConfigService) GetRunDate() (res response.SysRunDate, errCode int) {
+func (cs *ConfigService) GetRunDate() (res response.SysRunDate, errCode errcode.Err) {
 	v, errCode1 := cs.GetValueStr(dict.ConfigSysBreakDate)
 	if errCode1 != 0 {
 		errCode = errCode1
@@ -141,8 +141,8 @@ func (cs *ConfigService) GetRunDate() (res response.SysRunDate, errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 10:55
 // @success:
-func (cs *ConfigService) SetInitStep(s int) (errCode int) {
-	var step dict.InitStepValue
+func (cs *ConfigService) SetInitStep(s int) (errCode errcode.Err) {
+	var step response.InitStepValue
 	if s == dict.InitStepUser {
 		step.User = dict.InitStepValueDown
 	} else if s == dict.InitStepNetwork {
@@ -172,7 +172,7 @@ func (cs *ConfigService) SetInitStep(s int) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 18:51
 // @success:
-func (cs *ConfigService) InitReset() (errCode int) {
+func (cs *ConfigService) InitReset() (errCode errcode.Err) {
 	errCode = cs.SetInitStep(dict.InitStepReset)
 	if errCode != 0 {
 		return
@@ -189,7 +189,7 @@ func (cs *ConfigService) InitReset() (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/30 13:48
 // @success:
-func (cs *ConfigService) SysReset(req *request.UserLogin) (errCode int) {
+func (cs *ConfigService) SysReset(req *request.UserLogin) (errCode errcode.Err) {
 	//初始化状态
 	errCode = cs.SetInitStep(dict.InitStepReset)
 	if errCode != 0 {
@@ -225,7 +225,7 @@ func (cs *ConfigService) VersionInfo() (res response.VersionInfo) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/13 20:29
 // @success:
-func (cs *ConfigService) SetNetwork(req *request.SetNetwork) (errCode int) {
+func (cs *ConfigService) SetNetwork(req *request.SetNetwork) (errCode errcode.Err) {
 	var sysService SysService
 	err := sysService.setNetwork(req.Admin.Addr, req.Admin.Gateway, req.Admin.Netmask, config.Config.Adapter.AdminPath)
 	if err != nil {

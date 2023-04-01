@@ -13,8 +13,7 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/response"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/service"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/functions"
-	"github.com/gjing1st/gin-admin-frame/internal/pkg/global"
-	errcode2 "github.com/gjing1st/gin-admin-frame/pkg/errcode"
+	errcode "github.com/gjing1st/gin-admin-frame/pkg/errcode"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"path"
@@ -35,7 +34,7 @@ var sysService service.SysService
 // @success:
 func (slc *SysController) ServerStatus(c *gin.Context) {
 	res, _ := sysService.ServerStatus()
-	response.OkWithData(res, global.OperateSuccess, c)
+	response.OkWithData(res, c)
 
 }
 
@@ -57,10 +56,10 @@ func (slc *SysController) SysReset(c *gin.Context) {
 	errCode := configService.SysReset(&req)
 	content := "恢复出厂设置"
 	if errCode != 0 {
-		response.FailWithSysLog(errCode, global.CreatedFailed, "", content, c)
+		response.FailWithSysLog(errCode, "", content, c)
 		return
 	}
-	response.OkWithSysLog(global.OperateSuccess, "", content, c)
+	response.OkWithSysLog("", content, c)
 }
 
 // Reboot
@@ -75,12 +74,12 @@ func (slc *SysController) Reboot(c *gin.Context) {
 	go func() {
 		err := sysService.Reboot()
 		if err != 0 {
-			response.FailWithSysLog(errcode2.GafSysCmdErr, global.OperateFailed, "", content, c)
+			response.FailWithSysLog(errcode.GafSysCmdErr, "", content, c)
 			return
 		}
 	}()
 	//先返回请求成功，记录日志
-	response.OkWithSysLog(global.OperateSuccess, "", content, c)
+	response.OkWithSysLog("", content, c)
 
 }
 
@@ -93,11 +92,11 @@ func (slc *SysController) Reboot(c *gin.Context) {
 // @success:
 func (slc *SysController) SysRunDate(c *gin.Context) {
 	res, errCode := configService.GetRunDate()
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
-	response.OkWithData(res, global.QuerySuccess, c)
+	response.OkWithData(res, c)
 
 }
 
@@ -111,10 +110,10 @@ func (slc *SysController) SysRunDate(c *gin.Context) {
 func (slc *SysController) GetNetwork(c *gin.Context) {
 	res, errCode := sysService.GetNetwork()
 	if errCode != 0 {
-		response.Failed(errCode, global.OperateFailed, c)
+		response.Failed(errCode, c)
 		return
 	}
-	response.OkWithData(res, global.OperateSuccess, c)
+	response.OkWithData(res, c)
 }
 
 // SetNetwork
@@ -135,10 +134,10 @@ func (slc *SysController) SetNetwork(c *gin.Context) {
 	errCode := sysService.SetNetwork(&req)
 	content := "网络配置"
 	if errCode != 0 {
-		response.FailWithSysLog(errCode, global.CreatedFailed, "", content, c)
+		response.FailWithSysLog(errCode, "", content, c)
 		return
 	}
-	response.OkWithSysLog(global.OperateSuccess, "", content, c)
+	response.OkWithSysLog("", content, c)
 	//sysService.RestartNetwork()
 }
 
@@ -151,7 +150,7 @@ func (slc *SysController) SetNetwork(c *gin.Context) {
 // @success:
 func (slc *SysController) VersionInfo(c *gin.Context) {
 	res := sysService.VersionInfo()
-	response.OkWithData(res, global.OperateSuccess, c)
+	response.OkWithData(res, c)
 }
 
 // Update
@@ -165,10 +164,10 @@ func (slc *SysController) Update(c *gin.Context) {
 	errCode, version := sysService.Update()
 	content := "升级至" + version + "版本"
 	if errCode != 0 {
-		response.FailWithSysLog(errCode, global.OperateFailed, "", content, c)
+		response.FailWithSysLog(errCode, "", content, c)
 		return
 	}
-	response.OkWithSysLog(global.OperateSuccess, "", content, c)
+	response.OkWithSysLog("", content, c)
 }
 
 // UpdateVersionInfo
@@ -181,9 +180,9 @@ func (slc *SysController) Update(c *gin.Context) {
 func (slc *SysController) UpdateVersionInfo(c *gin.Context) {
 	res, errCode := sysService.UpdateVersionInfo()
 	if errCode != 0 {
-		response.Failed(errCode, global.OperateFailed, c)
+		response.Failed(errCode, c)
 	} else {
-		response.OkWithData(res, global.OperateSuccess, c)
+		response.OkWithData(res, c)
 	}
 }
 
@@ -214,21 +213,21 @@ func (slc *SysController) UploadFile(c *gin.Context) {
 	//创建存放目录
 	err = os.MkdirAll(config.Config.UploadPath+dirName, 0777)
 	if err != nil {
-		response.FailWithLog(errcode2.GafSysSaveFileErr, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errcode.GafSysSaveFileErr, "", content, nil, c)
 		return
 	}
 	//完整路径文件名
 	fullName := config.Config.UploadPath + dirName + file.Filename
 	//存放文件
 	if err = c.SaveUploadedFile(file, fullName); err != nil {
-		response.FailWithLog(errcode2.GafSysSaveFileErr, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errcode.GafSysSaveFileErr, "", content, nil, c)
 		return
 	}
 	errCode := sysService.DealFile(file.Filename, config.Config.UploadPath+dirName)
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errCode, "", content, nil, c)
 	} else {
-		response.OkWithLog(global.OperateSuccess, "", content, nil, c)
+		response.OkWithLog("", content, nil, c)
 	}
 
 }
@@ -260,21 +259,21 @@ func (slc *SysController) UploadFileV1(c *gin.Context) {
 	//创建存放目录
 	err = os.MkdirAll(config.Config.UploadPath, 0777)
 	if err != nil {
-		response.FailWithLog(errcode2.GafSysSaveFileErr, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errcode.GafSysSaveFileErr, "", content, nil, c)
 		return
 	}
 	//完整路径文件名
 	fullName := config.Config.UploadPath + file.Filename
 	//存放文件
 	if err = c.SaveUploadedFile(file, fullName); err != nil {
-		response.FailWithLog(errcode2.GafSysSaveFileErr, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errcode.GafSysSaveFileErr, "", content, nil, c)
 		return
 	}
 	errCode := sysService.DealFileV1(file.Filename, config.Config.UploadPath)
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.UploadFailed, "", content, nil, c)
+		response.FailWithLog(errCode, "", content, nil, c)
 	} else {
-		response.OkWithLog(global.OperateSuccess, "", content, nil, c)
+		response.OkWithLog("", content, nil, c)
 	}
 
 }
@@ -289,10 +288,10 @@ func (slc *SysController) UploadFileV1(c *gin.Context) {
 func (slc *SysController) GetAuto(c *gin.Context) {
 	res, errCode := sysService.GetAuto()
 	if errCode != 0 {
-		response.Failed(errCode, global.OperateFailed, c)
+		response.Failed(errCode, c)
 		return
 	}
-	response.OkWithData(res, global.OperateSuccess, c)
+	response.OkWithData(res, c)
 }
 
 // SetAuto
@@ -312,9 +311,9 @@ func (slc *SysController) SetAuto(c *gin.Context) {
 	content := "配置自动更新"
 	errCode := sysService.SetAuto(&req)
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.OperateFailed, "", content, req, c)
+		response.FailWithLog(errCode, "", content, req, c)
 		return
 	}
-	response.OkWithLog(global.OperateSuccess, "", content, req, c)
+	response.OkWithLog("", content, req, c)
 
 }

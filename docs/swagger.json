@@ -1,0 +1,610 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "基于Gin的后台管理框架.",
+        "title": "GAFAdmin",
+        "contact": {
+            "name": "这里写联系人信息",
+            "url": "http://tna.cn",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:9681",
+    "basePath": "/gaf/v1",
+    "paths": {
+        "/init": {
+            "get": {
+                "description": "获取初始化状态",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "获取初始化状态",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.Init"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/init/network": {
+            "post": {
+                "description": "网络配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "网络配置",
+                "parameters": [
+                    {
+                        "description": "网络配置",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.SetNetwork"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "初始化中重置",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "初始化中重置",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/init/step": {
+            "get": {
+                "description": "获取初始化步骤",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "获取初始化步骤",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.InitStepValue"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/login-type": {
+            "get": {
+                "description": "获取登录方式",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "获取登录方式",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.LoginTypeRes"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/sys/version/info": {
+            "get": {
+                "description": "软件版本信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "软件版本信息",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/response.VersionInfo"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/ukey/login": {
+            "post": {
+                "description": "远端(前端)UKey登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "远端(前端)UKey登录",
+                "parameters": [
+                    {
+                        "description": "管理员信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UKeyLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/entity.User"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/init": {
+            "post": {
+                "description": "添加管理员",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "添加管理员",
+                "parameters": [
+                    {
+                        "description": "管理员信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/login": {
+            "post": {
+                "description": "用户登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "用户登录",
+                "parameters": [
+                    {
+                        "description": "用户名密码",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "$ref": "#/definitions/entity.User"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "description": "用户列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "关键字",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "每页大小",
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "name": "role_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "排序参数",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "添加管理员",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "添加管理员",
+                "parameters": [
+                    {
+                        "description": "管理员信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/:userid": {
+            "delete": {
+                "description": "删除管理员",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "删除管理员",
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/passwd": {
+            "put": {
+                "description": "修改UKey密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "修改UKey密码",
+                "parameters": [
+                    {
+                        "description": "用户信息",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.ChangePasswd"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "操作成功",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.User": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "nick_name": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "integer"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_serial_num": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.ChangePasswd": {
+            "type": "object",
+            "required": [
+                "old_pin",
+                "pin"
+            ],
+            "properties": {
+                "old_pin": {
+                    "type": "string"
+                },
+                "pin": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.Network": {
+            "type": "object",
+            "properties": {
+                "addr": {
+                    "type": "string"
+                },
+                "gateway": {
+                    "type": "string"
+                },
+                "netmask": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.SetNetwork": {
+            "type": "object",
+            "required": [
+                "admin"
+            ],
+            "properties": {
+                "admin": {
+                    "$ref": "#/definitions/request.Network"
+                },
+                "sdf": {
+                    "$ref": "#/definitions/request.Network"
+                }
+            }
+        },
+        "request.UKeyLogin": {
+            "type": "object",
+            "required": [
+                "name",
+                "serial",
+                "sign",
+                "timestamp"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "serial": {
+                    "type": "string"
+                },
+                "sign": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UserCreate": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "cert": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pin": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "serial": {
+                    "type": "string"
+                },
+                "sign": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.UserLogin": {
+            "type": "object",
+            "required": [
+                "name",
+                "pin"
+            ],
+            "properties": {
+                "login_type": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pin": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.Init": {
+            "type": "object",
+            "properties": {
+                "initialized": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "response.InitStepValue": {
+            "type": "object",
+            "properties": {
+                "network": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.LoginTypeRes": {
+            "type": "object",
+            "properties": {
+                "login_type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.VersionInfo": {
+            "type": "object",
+            "properties": {
+                "device_model": {
+                    "description": "Algorithm    string `json:\"algorithm\"`",
+                    "type": "string"
+                },
+                "manufacturer": {
+                    "description": "生产厂商",
+                    "type": "string"
+                },
+                "serial": {
+                    "description": "序列号",
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

@@ -13,9 +13,8 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/response"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/service"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/functions"
-	"github.com/gjing1st/gin-admin-frame/internal/pkg/global"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils"
-	errcode2 "github.com/gjing1st/gin-admin-frame/pkg/errcode"
+	errcode "github.com/gjing1st/gin-admin-frame/pkg/errcode"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,75 +23,84 @@ type ConfigController struct {
 
 var configService service.ConfigService
 
-// GetInit
-// @description: 获取初始化状态
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/12/27 14:42
-// @success:
+// GetInit godoc
+// @Summary 获取初始化状态
+// @Description 获取初始化状态
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} response.Init "操作成功"
+// @Failure 500 {object} string
+// @Router /init [get]
 func (cc ConfigController) GetInit(c *gin.Context) {
 	v, errCode := configService.GetValueStr(dict.ConfigInitKey)
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
 	var res response.Init
 	res.Initialized = utils.Bool(v)
-	response.OkWithData(res, global.QuerySuccess, c)
+	response.OkWithData(res, c)
 }
 
-// GetInitStep
-// @description: 获取初始化步骤
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/12/29 9:52
-// @success:
+// GetInitStep godoc
+// @Summary 获取初始化步骤
+// @Description 获取初始化步骤
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} response.InitStepValue "操作成功"
+// @Failure 500 {object} string
+// @Router /init/step [get]
 func (cc ConfigController) GetInitStep(c *gin.Context) {
 	res, errCode := configService.GetInitStep()
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
-	response.OkWithData(res, global.QuerySuccess, c)
+	response.OkWithData(res, c)
 }
 
-// LoginType
-// @description: 获取登录方式
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/12/28 18:23
-// @success:
+// LoginType godoc
+// @Summary 获取登录方式
+// @Description 获取登录方式
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} response.LoginTypeRes "操作成功"
+// @Failure 500 {object} string
+// @Router /login-type [get]
 func (cc ConfigController) LoginType(c *gin.Context) {
 	v, errCode := configService.GetValueStr(dict.ConfigLoginType)
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
 	var res response.LoginTypeRes
 	res.LoginType = utils.Int(v)
-	response.OkWithData(res, global.QuerySuccess, c)
+	response.OkWithData(res, c)
 }
 
-// InitNetwork
-// @description: 初始化网络
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/12/29 11:18
-// @success:
+// InitNetwork godoc
+// @Summary 网络配置
+// @Description 网络配置
+// @Param data body request.SetNetwork true "网络配置"
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} string "操作成功"
+// @Failure 500 {object} string
+// @Router /init/network [post]
 func (cc ConfigController) InitNetwork(c *gin.Context) {
 	//判断是否已初始化完成
 	res, errCode := configService.GetInitStep()
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
 	//已初始化完成
 	if res.User == dict.InitStepValueDown && res.Network == dict.InitStepValueDown {
-		response.Forbidden(errcode2.GafUserForbiddenErr, global.InitDown, c)
+		response.Forbidden(errcode.GafUserForbiddenErr, c)
 		return
 	}
 	var req request.SetNetwork
@@ -104,54 +112,58 @@ func (cc ConfigController) InitNetwork(c *gin.Context) {
 	errCode = configService.SetNetwork(&req)
 	content := "初始化网络"
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.CreatedFailed, "", content, nil, c)
+		response.FailWithLog(errCode, "", content, nil, c)
 		return
 	}
 	//记录初始化操作步骤
 	errCode = configService.SetInitStep(dict.InitStepNetwork)
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.CreatedFailed, "", content, nil, c)
+		response.FailWithLog(errCode, "", content, nil, c)
 		return
 	}
-	response.OkWithLog(global.OperateSuccess, "", content, nil, c)
+	response.OkWithLog("", content, nil, c)
 }
 
-// InitReset
-// @description: 初始化中重置
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/12/29 18:23
-// @success:
+// InitReset godoc
+// @Summary 初始化中重置
+// @Description 初始化中重置
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} string "操作成功"
+// @Failure 500 {object} string
+// @Router /init/network [delete]
 func (cc ConfigController) InitReset(c *gin.Context) {
 	//判断是否已初始化完成
 	res, errCode := configService.GetInitStep()
-	if errCode != errcode2.SuccessCode {
-		response.Failed(errCode, global.QueryFailed, c)
+	if errCode != errcode.SuccessCode {
+		response.Failed(errCode, c)
 		return
 	}
 	//已初始化完成
 	if res.User == dict.InitStepValueDown && res.Network == dict.InitStepValueDown {
-		response.Forbidden(errcode2.GafUserForbiddenErr, global.InitDown, c)
+		response.Forbidden(errcode.GafUserForbiddenErr, c)
 		return
 	}
 	errCode = configService.InitReset()
 	content := "初始化重置"
 	if errCode != 0 {
-		response.FailWithLog(errCode, global.CreatedFailed, "", content, nil, c)
+		response.FailWithLog(errCode, "", content, nil, c)
 		return
 	}
-	response.OkWithLog(global.OperateSuccess, "", content, nil, c)
+	response.OkWithLog("", content, nil, c)
 }
 
-// VersionInfo
-// @description: 软件版本信息
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2023/1/4 9:25
-// @success:
+// VersionInfo godoc
+// @Summary 软件版本信息
+// @Description 软件版本信息
+// @contact.name GJing
+// @contact.email gjing1st@gmail.com
+// @Accept application/json
+// @Success 200 {object} response.VersionInfo "操作成功"
+// @Failure 500 {object} string
+// @Router /sys/version/info [get]
 func (cc ConfigController) VersionInfo(c *gin.Context) {
 	res := configService.VersionInfo()
-	response.OkWithData(res, global.QuerySuccess, c)
+	response.OkWithData(res, c)
 }

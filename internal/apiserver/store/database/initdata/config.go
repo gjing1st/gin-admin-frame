@@ -7,12 +7,11 @@
 package initdata
 
 import (
-	"encoding/json"
 	"errors"
-	"gorm.io/gorm"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/dict"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/entity"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/global"
+	"gorm.io/gorm"
 	"strconv"
 	"time"
 )
@@ -45,9 +44,7 @@ func (i InitConfig) InitializeData(db *gorm.DB) (err error) {
 	if db == nil {
 		return global.DBNullErr
 	}
-	//初始化步骤
-	var step1 dict.InitStepValue
-	initStep, _ := json.Marshal(step1)
+	initStep := `{user:0,network:0}`
 	//向导步骤
 	//var step2 dict.GuideStepValue
 	//guideStep, _ := json.Marshal(step2)

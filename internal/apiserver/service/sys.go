@@ -38,7 +38,7 @@ type SysService struct {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/9 20:29
 // @success:
-func (ss *SysService) ServerStatus() (res response.ServerStatus, errCode int) {
+func (ss *SysService) ServerStatus() (res response.ServerStatus, errCode errcode.Err) {
 	res.ServiceStatus = dict.ServiceStatusInit
 	res.RunStatus = dict.RunStatusAbnormal
 	var wg sync.WaitGroup
@@ -121,7 +121,7 @@ func (ss *SysService) ServerStatus() (res response.ServerStatus, errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/11 16:30
 // @success:
-func (ss *SysService) Reboot() (errCode int) {
+func (ss *SysService) Reboot() (errCode errcode.Err) {
 	err := utils.DockerRunCommand("reboot")
 	if err != nil {
 		functions.AddErrLog(log.Fields{"msg": "服务器重启指令执行失败", "err": err})
@@ -137,7 +137,7 @@ func (ss *SysService) Reboot() (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/11 16:32
 // @success:
-func (ss *SysService) RestartNetwork() (errCode int) {
+func (ss *SysService) RestartNetwork() (errCode errcode.Err) {
 	err := utils.DockerRunCommand("systemctl restart network")
 	if err != nil {
 		functions.AddErrLog(log.Fields{"msg": "服务器重启网卡指令执行失败", "err": err})
@@ -153,15 +153,15 @@ func (ss *SysService) RestartNetwork() (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/13 17:25
 // @success:
-func (ss *SysService) GetNetwork() (res *response.GetNetwork, errCode int) {
+func (ss *SysService) GetNetwork() (res *response.GetNetwork, errCode errcode.Err) {
 	//管理网口
 	adminNetwork, errCode1 := ss.getNetwork(config.Config.Adapter.AdminPath)
 	if errCode1 != 0 {
 		return
 	}
 	//密码服务网口
-	sdfNetwork, errCode2 := ss.getNetwork(config.Config.Adapter.CipherPath)
-	if errCode2 != 0 {
+	sdfNetwork, errcode := ss.getNetwork(config.Config.Adapter.CipherPath)
+	if errcode != 0 {
 		//return
 	}
 	res = &response.GetNetwork{
@@ -189,7 +189,7 @@ func getNetmask(addr string) string {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/13 19:03
 // @success:
-func (ss *SysService) getNetwork(filePath string) (res response.Network, errCode int) {
+func (ss *SysService) getNetwork(filePath string) (res response.Network, errCode errcode.Err) {
 	conf, err := ini.Load(filePath)
 	if err != nil {
 		log.Println("ini conf newkey error:", err)
@@ -216,7 +216,7 @@ func (ss *SysService) getNetwork(filePath string) (res response.Network, errCode
 // @email: gjing1st@gmail.com
 // @date: 2023/2/13 20:21
 // @success:
-func (ss *SysService) SetNetwork(req *request.SetNetwork) (errCode int) {
+func (ss *SysService) SetNetwork(req *request.SetNetwork) (errCode errcode.Err) {
 	if req.Admin.Addr != "" {
 		err := ss.setNetwork(req.Admin.Addr, req.Admin.Gateway, req.Admin.Netmask, config.Config.Adapter.AdminPath)
 		if err != nil {
@@ -335,7 +335,7 @@ func (ss *SysService) VersionInfo() (res response.VersionInfo) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/15 18:29
 // @success:
-func (ss *SysService) Update() (errCode int, version string) {
+func (ss *SysService) Update() (errCode errcode.Err, version string) {
 	//err := utils.DockerRunCommand("/home/app/hss/up.sh")
 	//if err != nil {
 	//	functions.AddErrLog(log.Fields{"msg": "执行升级失败", "err": err})
@@ -389,7 +389,7 @@ func (ss *SysService) CronUpdate() {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/16 9:44
 // @success:
-func (ss *SysService) UpdateVersionInfo() (res response.UpdateVersionInfo, errCode int) {
+func (ss *SysService) UpdateVersionInfo() (res response.UpdateVersionInfo, errCode errcode.Err) {
 	var cs ConfigService
 	res.CurrentVersion, errCode = cs.GetValueStr(dict.ConfigVersion)
 	res.LatestVersion, errCode = cs.GetValueStr(dict.ConfigLatestVersion)
@@ -404,7 +404,7 @@ func (ss *SysService) UpdateVersionInfo() (res response.UpdateVersionInfo, errCo
 // @email: gjing1st@gmail.com
 // @date: 2023/2/16 14:27
 // @success:
-func (ss *SysService) DealFile(fileName, filePath string) (errCode int) {
+func (ss *SysService) DealFile(fileName, filePath string) (errCode errcode.Err) {
 	fullName := filePath + fileName
 
 	//解压缩升级包
@@ -455,7 +455,7 @@ func (ss *SysService) DealFile(fileName, filePath string) (errCode int) {
 	return
 }
 
-func (ss *SysService) DealFileV1(fileName, filePath string) (errCode int) {
+func (ss *SysService) DealFileV1(fileName, filePath string) (errCode errcode.Err) {
 	fullName := filePath + fileName
 
 	//解压缩升级包
@@ -519,7 +519,7 @@ func (ss *SysService) DealFileV1(fileName, filePath string) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/16 16:22
 // @success:
-func (ss *SysService) GetAuto() (res response.AutoUpdateConfig, errCode int) {
+func (ss *SysService) GetAuto() (res response.AutoUpdateConfig, errCode errcode.Err) {
 	var cs ConfigService
 	auto, errCode1 := cs.GetValueStr(dict.ConfigAutoUpdate)
 	if errCode1 != 0 {
@@ -543,7 +543,7 @@ func (ss *SysService) GetAuto() (res response.AutoUpdateConfig, errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/16 16:33
 // @success:
-func (ss *SysService) SetAuto(req *request.AutoUpdateConfig) (errCode int) {
+func (ss *SysService) SetAuto(req *request.AutoUpdateConfig) (errCode errcode.Err) {
 	var cs ConfigService
 	errCode = cs.SetValue(dict.ConfigAutoUpdate, req.AutoUpdate)
 	if errCode != 0 {

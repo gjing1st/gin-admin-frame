@@ -14,7 +14,7 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/functions"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils/gm"
-	errcode2 "github.com/gjing1st/gin-admin-frame/pkg/errcode"
+	"github.com/gjing1st/gin-admin-frame/pkg/errcode"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,7 +30,7 @@ var userMysql = mysql.UserMysql{}
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 15:58
 // @success:
-func (us *UserService) Create(req *request.UserCreate) (errCode int) {
+func (us *UserService) Create(req *request.UserCreate) (errCode errcode.Err) {
 	var cs ConfigService
 	loginType, errCode1 := cs.GetValueStr(dict.ConfigLoginType)
 	if errCode1 != 0 {
@@ -50,15 +50,15 @@ func (us *UserService) Create(req *request.UserCreate) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/3/17 14:26
 // @success:
-func (us *UserService) CreateUser(req *request.UserCreate) (errCode int) {
+func (us *UserService) CreateUser(req *request.UserCreate) (errCode errcode.Err) {
 	user, errCode3 := userMysql.GetByName(req.Name)
-	if errCode3 != 0 && errCode3 != errcode2.GafUserNotFoundErr {
+	if errCode3 != 0 && errCode3 != errcode.GafUserNotFoundErr {
 		errCode = errCode3
 		return
 	}
 	if user.ID != 0 {
 		functions.AddErrLog(log.Fields{"msg": "创建管理员，该用户已存在", "userName": req.Name})
-		errCode = errcode2.GafUserHasExist
+		errCode = errcode.GafUserHasExist
 		return
 	}
 	var data entity.User
@@ -79,14 +79,14 @@ func (us *UserService) CreateUser(req *request.UserCreate) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 17:05
 // @success:
-func (us *UserService) Login(req *request.UserLogin) (user *entity.User, errCode int) {
+func (us *UserService) Login(req *request.UserLogin) (user *entity.User, errCode errcode.Err) {
 	user, errCode = userMysql.GetByName(req.Name)
 	if errCode != 0 {
 		return
 	}
 	ok := gm.CheckPasswd(req.Name, req.Password, user.Password)
 	if !ok {
-		errCode = errcode2.GafUserPasswdErr
+		errCode = errcode.GafUserPasswdErr
 		return
 	}
 	//删除之前的toekn，断点登录
@@ -118,7 +118,7 @@ func (us *UserService) Login(req *request.UserLogin) (user *entity.User, errCode
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 17:25
 // @success:
-func (us *UserService) List(req *request.UserList) (list interface{}, total int64, errCode int) {
+func (us *UserService) List(req *request.UserList) (list interface{}, total int64, errCode errcode.Err) {
 	list, total, errCode = userMysql.List(req)
 	return
 }
@@ -130,7 +130,7 @@ func (us *UserService) List(req *request.UserList) (list interface{}, total int6
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 20:19
 // @success:
-func (us *UserService) InfoByName(name string) (list interface{}, total int64, errCode int) {
+func (us *UserService) InfoByName(name string) (list interface{}, total int64, errCode errcode.Err) {
 	user, errCode1 := userMysql.GetByName(name)
 	if errCode1 != 0 {
 		errCode = errCode1
@@ -149,7 +149,7 @@ func (us *UserService) InfoByName(name string) (list interface{}, total int64, e
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 15:40
 // @success:
-func (us *UserService) UKeyLogin(req *request.UKeyLogin) (user *entity.User, errCode int) {
+func (us *UserService) UKeyLogin(req *request.UKeyLogin) (user *entity.User, errCode errcode.Err) {
 	user, errCode = userMysql.GetByNameAndSerialNum(req.Name, req.Serial)
 	if errCode != 0 || user.ID == 0 {
 		return
@@ -170,9 +170,9 @@ func (us *UserService) UKeyLogin(req *request.UKeyLogin) (user *entity.User, err
 	info.Name = user.Name
 	info.RoleId = user.RoleId
 
-	token, errCode2 := TokenService{}.GenerateToken(&info)
-	if errCode2 != 0 {
-		errCode = errCode2
+	token, errcode := TokenService{}.GenerateToken(&info)
+	if errcode != 0 {
+		errCode = errcode
 		return
 	}
 	user.Token = token
@@ -188,7 +188,7 @@ func (us *UserService) UKeyLogin(req *request.UKeyLogin) (user *entity.User, err
 // @email: gjing1st@gmail.com
 // @date: 2022/12/30 11:26
 // @success:
-func (us *UserService) DeleteById(userid int) (errCode int) {
+func (us *UserService) DeleteById(userid int) (errCode errcode.Err) {
 	errCode = userMysql.DeleteById(nil, userid)
 	return
 }
@@ -200,7 +200,7 @@ func (us *UserService) DeleteById(userid int) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/3/17 16:18
 // @success:
-func (us *UserService) DeleteUser(req *request.UserDelete) (errCode int) {
+func (us *UserService) DeleteUser(req *request.UserDelete) (errCode errcode.Err) {
 	var cs ConfigService
 	loginType, errCode1 := cs.GetValueStr(dict.ConfigLoginType)
 	if errCode1 != 0 {

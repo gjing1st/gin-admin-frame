@@ -39,7 +39,7 @@ func (slc *SysLogController) List(c *gin.Context) {
 
 	list, total, errCode := sysLogService.List(&req)
 	if errCode != 0 {
-		response.Failed(errCode, global.QueryFailed, c)
+		response.Failed(errCode, c)
 
 	} else {
 		response.OkWithData(response.PageResult{
@@ -47,6 +47,6 @@ func (slc *SysLogController) List(c *gin.Context) {
 			Total:    total,
 			Page:     req.Page,
 			PageSize: req.PageSize,
-		}, global.QuerySuccess, c)
+		}, c)
 	}
 }

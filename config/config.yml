@@ -18,7 +18,7 @@ mysql:
   username: root
   password: 123456
   dbname: gaf
-  port: 30348
+  port: 3306
   minconns: 150
   maxconns: 200
 versioninfo:

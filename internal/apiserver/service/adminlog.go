@@ -9,6 +9,7 @@ package service
 import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/request"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/store/mysql"
+	"github.com/gjing1st/gin-admin-frame/pkg/errcode"
 )
 
 type SysLogService struct {
@@ -34,7 +35,7 @@ func (sls *SysLogService) Create(log *request.SysLogCreate, req interface{}) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/9 10:52
 // @success:
-func (sls *SysLogService) List(req *request.SysLogList) (res interface{}, total int64, errCode int) {
+func (sls *SysLogService) List(req *request.SysLogList) (res interface{}, total int64, errCode errcode.Err) {
 	res, total, errCode = sysLogMysql.List(req)
 	return
 }

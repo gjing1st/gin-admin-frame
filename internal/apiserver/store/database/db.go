@@ -1,23 +1,17 @@
-// $
-// Created by dkedTeam.
+// Path: internal/apiserver/store/database
+// FileName: db.go
+// Created by dkedTeam
 // Author: GJing
-// Date: 2022/9/9$ 15:49$
+// Date: 2023/4/2$ 19:46$
 
 package database
 
 import (
 	"database/sql"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/config"
-	"github.com/gjing1st/gin-admin-frame/internal/apiserver/store/database/initdata"
-	"time"
-)
-
-var (
-	db *gorm.DB
+	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 const (
@@ -26,16 +20,44 @@ const (
 	DriverMongo      = "mongodb"
 )
 
-// InitDB
-// @description: 初始化数据库
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/4/6 22:37
-// @success:
-func InitDB() {
-	var err error
-	var dsn = MysqlEmptyDsn()
+type Entity interface {
+	TableName() string
+}
+
+// DBI 该接口主要模仿gorm实现
+type DBI interface {
+	CreateDB() (dsn string, err error)
+	InitDB()
+	GetDB() DBI
+	Model(value interface{}) DBI
+	Where(query string, args ...interface{}) DBI
+	Update(column string, value interface{}) DBI
+	First(interface{}) DBI
+	Delete(value interface{}, conds ...interface{}) DBI
+	Debug() DBI
+	Find(dest interface{}, conds ...interface{}) DBI
+	Limit(limit int) DBI
+	Offset(offset int) DBI
+	Select(query interface{}, args ...interface{}) DBI
+	Joins(query string, args ...interface{}) DBI
+	ExampleAddFunc(str string) DBI //新增方法，到base结构体实现一个空函数，避免其他结构体无法实现DBI接口
+
+}
+
+type Base struct {
+	gorm.DB
+}
+
+// ExampleAddFunc 此处只为实现DBI接口ExampleAddFunc方法，使其子类可以集成该方法，避免无法实现DBI接口
+// 子类可以重写该方法，丰富子类自己的功能
+func (db *Base) ExampleAddFunc(str string) (i DBI) {
+	return
+}
+func (db *Base) Debug() (i DBI) {
+	return
+}
+func (db *Base) CreateDB() (dsn string, err error) {
+	dsn = MysqlEmptyDsn()
 	createSql := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", config.Config.Mysql.DBName)
 	// 创建数据库
 	if err = createDatabase(dsn, "mysql", createSql); err != nil {
@@ -51,56 +73,7 @@ func InitDB() {
 		config.Config.Mysql.Port,
 		config.Config.Mysql.DBName,
 	)
-	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.WithFields(log.Fields{"err": err.Error()}).Panic(DriverMysql + "数据库连接失败")
-		return
-	}
-	//db.Use(dbresolver.Register(dbresolver.Config{
-	//	// `db2` 作为 sources，`db3`、`db4` 作为 replicas
-	//	Sources:  []gorm.Dialector{mysql.Open("dsn")},
-	//	Replicas: []gorm.Dialector{mysql.Open("db3_dsn"), mysql.Open("db4_dsn")},
-	//	// sources/replicas 负载均衡策略
-	//	Policy: dbresolver.RandomPolicy{},
-	//}))
-
-	// 获取通用数据库对象 sql.DB ，然后使用其提供的功能
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.WithFields(log.Fields{"err": err.Error()}).Panic(DriverMysql + "数据库连接失败")
-		return
-	}
-	err = sqlDB.Ping()
-	if err != nil {
-		log.WithFields(log.Fields{"err": err.Error()}).Panic(DriverMysql + "数据库连接失败")
-		return
-	}
-
-	// SetMaxIdleConns 设置MySQL的最大空闲连接数。
-	sqlDB.SetMaxIdleConns(config.Config.Mysql.MinConns)
-	// SetMaxOpenConns 设置MySQL的最大连接数。
-	sqlDB.SetMaxOpenConns(config.Config.Mysql.MaxConns)
-
-	// SetConnMaxLifetime 设置了连接可复用的最大时间。
-	sqlDB.SetConnMaxLifetime(time.Second * 30)
-	log.Info("init db success")
-}
-
-// GetDB
-// @description: 获取数据库连接
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/4/6 22:38
-// @success:
-func GetDB() *gorm.DB {
-	if db == nil {
-		InitDB()
-	}
-	// 初始化表和表数据
-	initdata.InitData(db)
-
-	return db
+	return
 }
 
 // MysqlEmptyDsn
@@ -140,4 +113,14 @@ func createDatabase(dsn string, driver string, createSql string) error {
 	}
 	_, err = db.Exec(createSql)
 	return err
+}
+
+func GetOrm(orm string) DBI {
+	switch orm {
+	case "zorm":
+		return GetZorm()
+	case "gorm":
+		return GetGorm()
+	}
+	panic("orm错误")
 }

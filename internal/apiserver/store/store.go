@@ -7,9 +7,10 @@
 package store
 
 import (
-	"gorm.io/gorm"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/store/database"
+	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 var GC = database.GetCache()
+var DBI database.DBI

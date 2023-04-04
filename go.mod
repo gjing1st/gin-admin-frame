@@ -21,6 +21,7 @@ require (
 )
 
 require (
+	gitee.com/chunanyong/zorm v1.6.7 // indirect
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect

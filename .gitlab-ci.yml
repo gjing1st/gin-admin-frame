@@ -1,0 +1,15 @@
+stages:
+  - docker
+
+docker-job:
+  tags:
+    - hss
+  stage: docker
+  script:
+    - VERSION=`echo $CI_COMMIT_REF_NAME | sed 's/\(v[0-9\x2e]*\).*/\1/'`
+    - TARGET_DIR=/opt/build-host/hss/${VERSION}
+    - mkdir -p $TARGET_DIR
+    - docker build -f ./script/docker/Dockerfile -t gaf:$VERSION .
+    - docker save -o $TARGET_DIR/gaf.tar gaf:$VERSION
+    - docker image prune -f
+    - echo "finish"

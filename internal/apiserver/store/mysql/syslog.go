@@ -28,7 +28,7 @@ type SysLogMysql struct {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 14:59
 // @success:
-func (sm SysLogMysql) Create(tx *gorm.DB, data *entity.SysLog) (errCode int) {
+func (sm SysLogMysql) Create(tx *gorm.DB, data *entity.SysLog) (errCode errcode.Err) {
 	if tx == nil {
 		tx = store.DB
 	}
@@ -48,7 +48,7 @@ func (sm SysLogMysql) Create(tx *gorm.DB, data *entity.SysLog) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2023/2/9 11:30
 // @success:
-func (sm SysLogMysql) List(req *request.SysLogList) (users []entity.SysLog, total int64, errCode int) {
+func (sm SysLogMysql) List(req *request.SysLogList) (users []entity.SysLog, total int64, errCode errcode.Err) {
 	db := store.DB.Model(&entity.SysLog{}).Where("category = ?", req.Category)
 	if req.Keyword != "" {
 		db.Where("username like ? or content like ?", "%"+req.Keyword+"%", "%"+req.Keyword+"%")
@@ -86,7 +86,7 @@ func (sm SysLogMysql) List(req *request.SysLogList) (users []entity.SysLog, tota
 // @email: gjing1st@gmail.com
 // @date: 2023/3/24 10:51
 // @success:
-func (sm SysLogMysql) TruncateTable(tx *gorm.DB) (errCode int) {
+func (sm SysLogMysql) TruncateTable(tx *gorm.DB) (errCode errcode.Err) {
 	if tx == nil {
 		tx = store.DB
 	}

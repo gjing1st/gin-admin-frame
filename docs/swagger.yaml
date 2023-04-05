@@ -1,0 +1,400 @@
+basePath: /gaf/v1
+definitions:
+  entity.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      nick_name:
+        type: string
+      role_id:
+        type: integer
+      status:
+        type: integer
+      token:
+        type: string
+      updated_at:
+        type: string
+      user_serial_num:
+        type: string
+    type: object
+  request.ChangePasswd:
+    properties:
+      old_pin:
+        type: string
+      pin:
+        type: string
+    required:
+    - old_pin
+    - pin
+    type: object
+  request.Network:
+    properties:
+      addr:
+        type: string
+      gateway:
+        type: string
+      netmask:
+        type: string
+    type: object
+  request.SetNetwork:
+    properties:
+      admin:
+        $ref: '#/definitions/request.Network'
+      sdf:
+        $ref: '#/definitions/request.Network'
+    required:
+    - admin
+    type: object
+  request.UKeyLogin:
+    properties:
+      name:
+        type: string
+      serial:
+        type: string
+      sign:
+        type: string
+      timestamp:
+        type: string
+    required:
+    - name
+    - serial
+    - sign
+    - timestamp
+    type: object
+  request.UserCreate:
+    properties:
+      cert:
+        type: string
+      name:
+        type: string
+      pin:
+        type: string
+      role_id:
+        type: integer
+      serial:
+        type: string
+      sign:
+        type: string
+      timestamp:
+        type: string
+    required:
+    - name
+    type: object
+  request.UserLogin:
+    properties:
+      login_type:
+        type: string
+      name:
+        type: string
+      pin:
+        type: string
+    required:
+    - name
+    - pin
+    type: object
+  response.Init:
+    properties:
+      initialized:
+        type: boolean
+    type: object
+  response.InitStepValue:
+    properties:
+      network:
+        type: integer
+      user:
+        type: integer
+    type: object
+  response.LoginTypeRes:
+    properties:
+      login_type:
+        type: integer
+    type: object
+  response.VersionInfo:
+    properties:
+      device_model:
+        description: Algorithm    string `json:"algorithm"`
+        type: string
+      manufacturer:
+        description: 生产厂商
+        type: string
+      serial:
+        description: 序列号
+        type: string
+      version:
+        type: string
+    type: object
+host: localhost:9681
+info:
+  contact:
+    email: support@swagger.io
+    name: 这里写联系人信息
+    url: http://tna.cn
+  description: 基于Gin的后台管理框架.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: GAFAdmin
+  version: "1.0"
+paths:
+  /init:
+    get:
+      consumes:
+      - application/json
+      description: 获取初始化状态
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/response.Init'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取初始化状态
+  /init/network:
+    delete:
+      consumes:
+      - application/json
+      description: 初始化中重置
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 初始化中重置
+    post:
+      consumes:
+      - application/json
+      description: 网络配置
+      parameters:
+      - description: 网络配置
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.SetNetwork'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 网络配置
+  /init/step:
+    get:
+      consumes:
+      - application/json
+      description: 获取初始化步骤
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/response.InitStepValue'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取初始化步骤
+  /login-type:
+    get:
+      consumes:
+      - application/json
+      description: 获取登录方式
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/response.LoginTypeRes'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 获取登录方式
+  /sys/version/info:
+    get:
+      consumes:
+      - application/json
+      description: 软件版本信息
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/response.VersionInfo'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 软件版本信息
+  /ukey/login:
+    post:
+      consumes:
+      - application/json
+      description: 远端(前端)UKey登录
+      parameters:
+      - description: 管理员信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UKeyLogin'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/entity.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 远端(前端)UKey登录
+  /user/init:
+    post:
+      consumes:
+      - application/json
+      description: 添加管理员
+      parameters:
+      - description: 管理员信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserCreate'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 添加管理员
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录
+      parameters:
+      - description: 用户名密码
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserLogin'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            $ref: '#/definitions/entity.User'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 用户登录
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: 用户列表
+      parameters:
+      - description: 关键字
+        in: query
+        name: keyword
+        type: string
+      - description: 页码
+        in: query
+        name: page
+        type: integer
+      - description: 每页大小
+        in: query
+        name: page_size
+        type: integer
+      - in: query
+        items:
+          type: integer
+        name: role_id
+        type: array
+      - description: 排序参数
+        in: query
+        name: sort
+        type: string
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 用户列表
+    post:
+      consumes:
+      - application/json
+      description: 添加管理员
+      parameters:
+      - description: 管理员信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.UserCreate'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 添加管理员
+  /users/:userid:
+    delete:
+      consumes:
+      - application/json
+      description: 删除管理员
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 删除管理员
+  /users/passwd:
+    put:
+      consumes:
+      - application/json
+      description: 修改UKey密码
+      parameters:
+      - description: 用户信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/request.ChangePasswd'
+      responses:
+        "200":
+          description: 操作成功
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: 修改UKey密码
+swagger: "2.0"

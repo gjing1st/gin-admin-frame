@@ -11,7 +11,7 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/request"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/store"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/functions"
-	errcode2 "github.com/gjing1st/gin-admin-frame/pkg/errcode"
+	errcode "github.com/gjing1st/gin-admin-frame/pkg/errcode"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -26,14 +26,14 @@ type UserMysql struct {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 16:00
 // @success:
-func (um *UserMysql) Create(tx *gorm.DB, user *entity.User) (id uint, errCode int) {
+func (um *UserMysql) Create(tx *gorm.DB, user *entity.User) (id uint, errCode errcode.Err) {
 	if tx == nil {
 		tx = store.DB
 	}
 	err := tx.Create(&user).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql创建管理员失败"})
-		return id, errcode2.GafSysDBCreateErr
+		return id, errcode.GafSysDBCreateErr
 	}
 	return user.ID, 0
 }
@@ -45,14 +45,14 @@ func (um *UserMysql) Create(tx *gorm.DB, user *entity.User) (id uint, errCode in
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 17:10
 // @success:
-func (um UserMysql) GetByName(name string) (user *entity.User, errCode int) {
+func (um UserMysql) GetByName(name string) (user *entity.User, errCode errcode.Err) {
 	err := store.DB.Where("name = ?", name).First(&user).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql创建管理员失败"})
-		if err == errcode2.ErrRecordNotFound {
-			return user, errcode2.GafUserNotFoundErr
+		if err == errcode.ErrRecordNotFound {
+			return user, errcode.GafUserNotFoundErr
 		}
-		return user, errcode2.GafSysDBFindErr
+		return user, errcode.GafSysDBFindErr
 	}
 	return
 }
@@ -64,10 +64,10 @@ func (um UserMysql) GetByName(name string) (user *entity.User, errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 18:14
 // @success:
-func (um UserMysql) UpdateToken(id uint, token string) (errCode int) {
+func (um UserMysql) UpdateToken(id uint, token string) (errCode errcode.Err) {
 	err := store.DB.Model(&entity.User{}).Where("id = ?", id).Update("token", token).Error
 	if err != nil {
-		errCode = errcode2.GafSysDBUpdateErr
+		errCode = errcode.GafSysDBUpdateErr
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql修改token失败", "id": id, "token": token})
 	}
 	return
@@ -80,7 +80,7 @@ func (um UserMysql) UpdateToken(id uint, token string) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 17:31
 // @success:
-func (um UserMysql) List(req *request.UserList) (users []entity.User, total int64, errCode int) {
+func (um UserMysql) List(req *request.UserList) (users []entity.User, total int64, errCode errcode.Err) {
 	db := store.DB.Model(&entity.User{})
 	if req.Keyword != "" {
 		db.Where("name like ?", "%"+req.Keyword+"%")
@@ -94,7 +94,7 @@ func (um UserMysql) List(req *request.UserList) (users []entity.User, total int6
 	err = db.Limit(limit).Offset(offset).Order("id desc").Find(&users).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql查询策略列表失败"})
-		errCode = errcode2.GafUserNotFoundErr
+		errCode = errcode.GafUserNotFoundErr
 	}
 	return
 }
@@ -106,14 +106,14 @@ func (um UserMysql) List(req *request.UserList) (users []entity.User, total int6
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 15:36
 // @success:
-func (um UserMysql) GetByNameAndSerialNum(name, serialNum string) (user *entity.User, errCode int) {
+func (um UserMysql) GetByNameAndSerialNum(name, serialNum string) (user *entity.User, errCode errcode.Err) {
 	err := store.DB.Where("name = ? and user_serial_num = ?", name, serialNum).First(&user).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql查询ukey管理员失败"})
-		if err == errcode2.ErrRecordNotFound {
-			return user, errcode2.GafUserNotFoundErr
+		if err == errcode.ErrRecordNotFound {
+			return user, errcode.GafUserNotFoundErr
 		}
-		return user, errcode2.GafSysDBFindErr
+		return user, errcode.GafSysDBFindErr
 	}
 	return
 }
@@ -125,7 +125,7 @@ func (um UserMysql) GetByNameAndSerialNum(name, serialNum string) (user *entity.
 // @email: gjing1st@gmail.com
 // @date: 2022/12/29 18:38
 // @success:
-func (um UserMysql) ResetUser(tx *gorm.DB) (errCode int) {
+func (um UserMysql) ResetUser(tx *gorm.DB) (errCode errcode.Err) {
 	if tx == nil {
 		tx = store.DB
 	}
@@ -133,7 +133,7 @@ func (um UserMysql) ResetUser(tx *gorm.DB) (errCode int) {
 	err := tx.Unscoped().Where("name != ?", "superadmin").Delete(&entity.User{}).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql重置管理员失败"})
-		return errcode2.GafSysDBDeleteErr
+		return errcode.GafSysDBDeleteErr
 	}
 	return
 }
@@ -145,14 +145,14 @@ func (um UserMysql) ResetUser(tx *gorm.DB) (errCode int) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/30 11:28
 // @success:
-func (um UserMysql) DeleteById(tx *gorm.DB, userid int) (errCode int) {
+func (um UserMysql) DeleteById(tx *gorm.DB, userid int) (errCode errcode.Err) {
 	if tx == nil {
 		tx = store.DB
 	}
 	err := tx.Where("id = ?", userid).Delete(&entity.User{}).Error
 	if err != nil {
 		functions.AddErrLog(log.Fields{"err": err, "msg": "mysql重置管理员失败"})
-		return errcode2.GafSysDBDeleteErr
+		return errcode.GafSysDBDeleteErr
 	}
 	return
 }

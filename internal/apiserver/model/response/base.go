@@ -7,6 +7,7 @@
 package response
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/dict"
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/entity"
@@ -14,7 +15,6 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/global"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils"
 	"github.com/gjing1st/gin-admin-frame/pkg/errcode"
-	"github.com/goccy/go-json"
 	"net/http"
 )
 
@@ -27,7 +27,7 @@ type PageResult struct {
 
 // Response http.code=200时统一返回格式
 type Response struct {
-	Code int         `json:"code"`
+	Code errcode.Err `json:"code"`
 	Data interface{} `json:"data"`
 	Msg  string      `json:"msg"`
 }
@@ -37,18 +37,12 @@ const (
 	SUCCESS = 0
 )
 
-func Result(code int, data interface{}, msg string, c *gin.Context) {
+func Result(code errcode.Err, data interface{}, c *gin.Context) {
 	c.JSON(http.StatusOK, Response{
 		code,
 		data,
-		msg,
+		code.String(),
 	})
-}
-func OkWithMessage(message string, c *gin.Context) {
-	Result(errcode.SuccessCode, map[string]interface{}{}, message, c)
-}
-func OkWithDetailed(data interface{}, message string, c *gin.Context) {
-	Result(errcode.SuccessCode, data, message, c)
 }
 
 // Ok
@@ -58,23 +52,8 @@ func OkWithDetailed(data interface{}, message string, c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/11/18 14:03
 // @success: http_code = 200
-func Ok(message string, c *gin.Context) {
-	Result(errcode.SuccessCode, gin.H{}, message, c)
-}
-
-// Created
-// @description:
-// @param:
-// @author: GJing
-// @email: gjing1st@gmail.com
-// @date: 2022/11/27 17:43
-// @success:
-func Created(message string, c *gin.Context) {
-	c.JSON(http.StatusCreated, Response{
-		errcode.SuccessCode,
-		gin.H{},
-		message,
-	})
+func Ok(c *gin.Context) {
+	Result(errcode.SuccessCode, gin.H{}, c)
 }
 
 // OkWithData
@@ -84,8 +63,8 @@ func Created(message string, c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/11/18 14:37
 // @success:
-func OkWithData(data interface{}, message string, c *gin.Context) {
-	Result(errcode.SuccessCode, data, message, c)
+func OkWithData(data interface{}, c *gin.Context) {
+	Result(errcode.SuccessCode, data, c)
 }
 
 // Failed
@@ -95,11 +74,11 @@ func OkWithData(data interface{}, message string, c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/11/17 18:42
 // @success: http_code = 500
-func Failed(code int, message string, c *gin.Context) {
+func Failed(code errcode.Err, c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, Response{
 		code,
 		gin.H{},
-		message,
+		code.String(),
 	})
 }
 
@@ -110,7 +89,7 @@ func Failed(code int, message string, c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/11/18 14:31
 // @success: http_code = 404
-func FailedNotFound(code int, c *gin.Context) {
+func FailedNotFound(code errcode.Err, c *gin.Context) {
 	c.JSON(http.StatusNotFound, Response{
 		code,
 		gin.H{},
@@ -136,8 +115,8 @@ func ParamErr(c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 16:16
 // @success:
-func OkWithLog(message string, username string, content string, req interface{}, c *gin.Context) {
-	Result(errcode.SuccessCode, gin.H{}, message, c)
+func OkWithLog(username string, content string, req interface{}, c *gin.Context) {
+	Result(errcode.SuccessCode, gin.H{}, c)
 	var sysLog entity.SysLog
 	sysLog.Result = dict.SysLogResultOk
 	sysLog.ClientIP = c.ClientIP()
@@ -159,8 +138,8 @@ func OkWithLog(message string, username string, content string, req interface{},
 // @email: gjing1st@gmail.com
 // @date: 2023/3/13 17:26
 // @success:
-func OkWithSysLog(message string, username string, content string, c *gin.Context) {
-	Result(errcode.SuccessCode, gin.H{}, message, c)
+func OkWithSysLog(username string, content string, c *gin.Context) {
+	Result(errcode.SuccessCode, gin.H{}, c)
 	var sysLog entity.SysLog
 	sysLog.Result = dict.SysLogResultOk
 	sysLog.ClientIP = c.ClientIP()
@@ -181,11 +160,11 @@ func OkWithSysLog(message string, username string, content string, c *gin.Contex
 // @email: gjing1st@gmail.com
 // @date: 2023/3/13 17:29
 // @success:
-func FailWithSysLog(code int, message string, username string, content string, c *gin.Context) {
+func FailWithSysLog(code errcode.Err, username string, content string, c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, Response{
 		code,
 		gin.H{},
-		message,
+		code.String(),
 	})
 	var sysLog entity.SysLog
 	sysLog.Result = dict.AdminLogResultFail
@@ -207,8 +186,8 @@ func FailWithSysLog(code int, message string, username string, content string, c
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 17:30
 // @success:
-func OkWithDataLog(data interface{}, message string, username string, content string, req interface{}, c *gin.Context) {
-	Result(errcode.SuccessCode, data, message, c)
+func OkWithDataLog(data interface{}, username string, content string, req interface{}, c *gin.Context) {
+	Result(errcode.SuccessCode, data, c)
 	var sysLog entity.SysLog
 	sysLog.Result = dict.AdminLogResultOk
 	sysLog.ClientIP = c.ClientIP()
@@ -231,11 +210,11 @@ func OkWithDataLog(data interface{}, message string, username string, content st
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 16:20
 // @success:
-func FailWithLog(code int, message string, username string, content string, req interface{}, c *gin.Context) {
+func FailWithLog(code errcode.Err, username string, content string, req interface{}, c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, Response{
 		code,
 		gin.H{},
-		message,
+		code.String(),
 	})
 	var sysLog entity.SysLog
 	sysLog.Result = dict.AdminLogResultFail
@@ -258,11 +237,11 @@ func FailWithLog(code int, message string, username string, content string, req 
 // @email: gjing1st@gmail.com
 // @date: 2023/2/9 17:48
 // @success:
-func FailWithDataLog(data interface{}, code int, message string, username string, content string, req interface{}, c *gin.Context) {
+func FailWithDataLog(data interface{}, errCode errcode.Err, username string, content string, req interface{}, c *gin.Context) {
 	c.JSON(http.StatusInternalServerError, Response{
-		code,
+		errCode,
 		data,
-		message,
+		errCode.String(),
 	})
 	var sysLog entity.SysLog
 	sysLog.Result = dict.AdminLogResultFail
@@ -285,11 +264,11 @@ func FailWithDataLog(data interface{}, code int, message string, username string
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 18:02
 // @success:
-func Unauthorized(errCode int, message string, c *gin.Context) {
+func Unauthorized(errCode errcode.Err, c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, Response{
 		errCode,
 		gin.H{},
-		message,
+		errCode.String(),
 	})
 }
 
@@ -300,10 +279,10 @@ func Unauthorized(errCode int, message string, c *gin.Context) {
 // @email: gjing1st@gmail.com
 // @date: 2022/12/28 18:05
 // @success:
-func Forbidden(errCode int, message string, c *gin.Context) {
+func Forbidden(errCode errcode.Err, c *gin.Context) {
 	c.JSON(http.StatusForbidden, Response{
 		errCode,
 		gin.H{},
-		message,
+		errCode.String(),
 	})
 }

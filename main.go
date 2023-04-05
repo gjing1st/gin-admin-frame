@@ -8,10 +8,20 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/store/database"
 )
 
+// @title GAFAdmin
+// @version 1.0
+// @description 基于Gin的后台管理框架.
+// @contact.name 这里写联系人信息
+// @contact.url http://tna.cn
+// @contact.email support@swagger.io
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:9681
+// @BasePath /gaf/v1
+//
 //go:generate go env -w GO111MODULE=on
 //go:generate go env -w GOPROXY=https://goproxy.cn,direct
 //go:generate go mod tidy
-
 func main() {
 	//加载配置文件
 	config.InitConfig()

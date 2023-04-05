@@ -41,12 +41,6 @@ const (
 	InitStepReset   = 3 //初始化重置
 )
 
-// InitStepValue 初始化步骤对应的值
-type InitStepValue struct {
-	User    int `json:"user"`
-	Network int `json:"network"`
-}
-
 // GuideStepValue 向导步骤
 type GuideStepValue struct {
 	DeviceKey int `json:"device_key"`

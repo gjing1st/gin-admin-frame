@@ -10,6 +10,7 @@ import (
 	"github.com/gjing1st/gin-admin-frame/internal/apiserver/model/entity"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils"
 	"github.com/gjing1st/gin-admin-frame/internal/pkg/utils/rand"
+	"github.com/gjing1st/gin-admin-frame/pkg/errcode"
 	"strconv"
 )
 
@@ -25,7 +26,7 @@ const tokenPrefix = "admin:"
 // @email: guojing@tna.cn
 // @date: 2022/4/15 14:37
 // @success:
-func (td TokenService) GenerateToken(u *entity.UserTokenInfo) (token string, errCode int) {
+func (td TokenService) GenerateToken(u *entity.UserTokenInfo) (token string, errCode errcode.Err) {
 	data := map[string]interface{}{
 		"id":      u.Id,
 		"name":    u.Name,
@@ -47,7 +48,7 @@ func (td TokenService) GenerateToken(u *entity.UserTokenInfo) (token string, err
 // @email: gjing1st@gmail.com
 // @date: 2022/12/27 18:22
 // @success:
-func (td TokenService) GetInfo(token string) (u entity.UserTokenInfo, errCode int) {
+func (td TokenService) GetInfo(token string) (u entity.UserTokenInfo, errCode errcode.Err) {
 	hKey := tokenPrefix + token
 	v, errCode1 := gCache.Get(hKey)
 	if errCode != 0 || v == nil {

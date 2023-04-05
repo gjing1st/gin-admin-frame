@@ -29,3 +29,9 @@ type VersionInfo struct {
 	//Algorithm    string `json:"algorithm"`
 	DeviceModel string `json:"device_model"` //设备型号固定
 }
+
+// InitStepValue 初始化步骤对应的值
+type InitStepValue struct {
+	User    int `json:"user"`
+	Network int `json:"network"`
+}

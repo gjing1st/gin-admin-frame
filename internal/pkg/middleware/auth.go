@@ -31,7 +31,7 @@ func LoginRequired(ctx *gin.Context) {
 	token := ctx.GetHeader("Authorization")
 	if token == "" {
 		//请求头没有传Authorization参数，直接返回401未授权
-		response.Unauthorized(errcode.GafUserWithoutToken, global.LoginTokenNull, ctx)
+		response.Unauthorized(errcode.GafUserWithoutToken, ctx)
 		ctx.Abort()
 		return
 	}
@@ -39,7 +39,7 @@ func LoginRequired(ctx *gin.Context) {
 	i := strings.Index(token, bearer)
 	if i == -1 {
 		functions.AddWarnLog(log.Fields{"msg": "token非法", "token": token})
-		response.Unauthorized(errcode.GafUserWithoutToken, global.LoginTokenErr, ctx)
+		response.Unauthorized(errcode.GafUserWithoutToken, ctx)
 		ctx.Abort()
 		return
 	}
@@ -49,7 +49,7 @@ func LoginRequired(ctx *gin.Context) {
 	if err != 0 || userInfo.Id == 0 {
 		//token错误或token过期，返回401
 		functions.AddWarnLog(log.Fields{"err": err, "msg": "用户token解析错误", "token": token})
-		response.Unauthorized(errcode.GafUserTokenExpired, global.LoginTokenErr, ctx)
+		response.Unauthorized(errcode.GafUserTokenExpired, ctx)
 		ctx.Abort()
 		return
 	}
@@ -70,14 +70,14 @@ func LoginRequired(ctx *gin.Context) {
 func AdminRequired(c *gin.Context) {
 	role, b := c.Get("roleId")
 	if !b {
-		response.Forbidden(errcode.GafUserRoleErr, global.Unauthorized, c)
+		response.Forbidden(errcode.GafUserRoleErr, c)
 		c.Abort()
 		return
 	}
 	roleId := utils.Int(role)
 	if roleId != dict.RoleIdAdmin && roleId != dict.RoleIdSuperAdmin {
 		//不是管理员或者超管角色，返回403状态码
-		response.Forbidden(errcode.GafUserForbiddenErr, global.AuthForbidden, c)
+		response.Forbidden(errcode.GafUserForbiddenErr, c)
 		c.Abort()
 		return
 	}
